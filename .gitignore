@@ -3,8 +3,4 @@ build
 *.lock
 *.log
 try.*
-*cookie.txt
-today.txt
-user.jsonc
-app.key
-app.jsonc
+.idea
