@@ -59,6 +59,9 @@ export type KData = {
   t: string
 }
 
+/** 股票最后一个周期的 K 数据 */
+export type LatestKData = StockBase & KData & { ts: string; period: KPeriod }
+
 /** 股票 K 线数据。如 {period:"day", code:"60000",name:"浦发银行,data:[{...},...]} */
 export type StockKData = StockBase & {
   /** 数据时间戳 ISO DateTime yyyy-MM-ddTHH:mm:ss */
