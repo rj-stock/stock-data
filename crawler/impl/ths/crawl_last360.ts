@@ -2,12 +2,12 @@
  * 从移动端打开页面 https://m.10jqka.com.cn/stockpage/hs_600000 收集的数据请求地址。
  */
 import { parseJsonp } from "../../../deps.ts"
-import { Crawler } from "../../crawler.ts"
-import { KPeriod, StockData } from "../../../types.ts"
+import { KCrawler } from "../../crawler.ts"
+import { KPeriod, StockKData } from "../../../types.ts"
 import { LastXResponsJson, parseLastXJson2StockData, period2LineUrlPath, thsRequestInit } from "./internal.ts"
 
 /** 同花顺股票数据器爬取实现 */
-const crawl: Crawler = async (code: string, period = KPeriod.Day, debug = false): Promise<StockData> => {
+const crawl: KCrawler = async (code: string, period = KPeriod.Day, debug = false): Promise<StockKData> => {
   const sp = period2LineUrlPath(period)
   const url = `http://d.10jqka.com.cn/v6/line/hs_${code}/${sp}/last360.js?ts=${Date.now()}`
   const response = await fetch(url, thsRequestInit)

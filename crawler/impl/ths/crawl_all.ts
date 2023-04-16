@@ -31,8 +31,8 @@
  * @module
  */
 import { formatDateTime, parseJsonp } from "../../../deps.ts"
-import { Crawler } from "../../crawler.ts"
-import { KData, KPeriod, StockData } from "../../../types.ts"
+import { KCrawler } from "../../crawler.ts"
+import { KData, KPeriod, StockKData } from "../../../types.ts"
 import { period2LineUrlPath, thsRequestInit, ts2IsoStandard } from "./internal.ts"
 
 type ResponsJson = {
@@ -65,7 +65,7 @@ type ResponsJson = {
  * 1. 打开页面 http://stockpage.10jqka.com.cn/300025/ 然后点“日K”并切换到不复权，发出下面的数据请求
  * 2. https://d.10jqka.com.cn/v6/line/hs_300025/00/all.js
  */
-const crawl: Crawler = async (code: string, period = KPeriod.Day, debug = false): Promise<StockData> => {
+const crawl: KCrawler = async (code: string, period = KPeriod.Day, debug = false): Promise<StockKData> => {
   const sp = period2LineUrlPath(period)
   const url = `http://d.10jqka.com.cn/v6/line/hs_${code}/${sp}/all.js?ts=${Date.now()}`
   const response = await fetch(url, thsRequestInit)
@@ -131,7 +131,7 @@ const crawl: Crawler = async (code: string, period = KPeriod.Day, debug = false)
   }
 
   // 组合数据返回
-  const stockData: StockData = {
+  const stockData: StockKData = {
     ts: formatDateTime(new Date(), "yyyy-MM-ddTHH:mm:ss"),
     period,
     code,

@@ -1,7 +1,7 @@
 // 仅在本目录内使用的内部函数
 import { userAgent } from "../../../browser.ts"
 import { formatDateTime } from "../../../deps.ts"
-import { KData, KPeriod, StockData } from "../../../types.ts"
+import { KData, KPeriod, StockKData } from "../../../types.ts"
 
 export const thsRequestInit: RequestInit = {
   headers: {
@@ -86,10 +86,10 @@ export type LastXResponsJson = {
   data: string
 }
 
-/** 解析相应的 json 数据为 StockData 数据结构。 */
-export function parseLastXJson2StockData(code: string, j: LastXResponsJson, period: KPeriod): StockData {
+/** 解析 lastX.js 请求所响应的的 json 数据为 StockData 数据结构。 */
+export function parseLastXJson2StockData(code: string, j: LastXResponsJson, period: KPeriod): StockKData {
   const kk = j.data.split(";")
-  const stockData: StockData = {
+  const stockData: StockKData = {
     ts: formatDateTime(new Date(), "yyyy-MM-ddTHH:mm:ss"),
     period,
     code,
@@ -115,4 +115,8 @@ export function parseLastXJson2StockData(code: string, j: LastXResponsJson, peri
   }
 
   return stockData
+}
+
+export function isMinutePeriod(period: KPeriod): boolean {
+  return period.toString().startsWith("minute")
 }

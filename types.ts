@@ -60,7 +60,7 @@ export type KData = {
 }
 
 /** 股票 K 线数据。如 {period:"day", code:"60000",name:"浦发银行,data:[{...},...]} */
-export type StockData = StockBase & {
+export type StockKData = StockBase & {
   /** 数据时间戳 ISO DateTime yyyy-MM-ddTHH:mm:ss */
   ts: string
   /** 总周期数 */
@@ -73,4 +73,34 @@ export type StockData = StockBase & {
   data: KData[]
   /** data 属性的元素数量 */
   dataCount: number
+}
+
+/** 股票分时数据。如 {period:"time", code:"60000",name:"浦发银行,data:[{...},...]} */
+export type StockTimeData = StockBase & {
+  /** 数据时间戳 ISO DateTime yyyy-MM-ddTHH:mm:ss */
+  ts: string
+  /** 分时周期 */
+  period: KPeriod.Time
+  /** 分时数据所属的日期 */
+  date: string
+  /** 昨日收盘价 */
+  pre: number
+  /** 分时数据集 */
+  data: TimeData[]
+  /** data 属性的元素数量，对应分钟数，值为 242 */
+  dataCount: number
+}
+
+/** K 线数据 */
+export type TimeData = {
+  /** 现价 */
+  c: number
+  /** 均价 */
+  j: number
+  /** 成交量(股) */
+  v: number
+  /** 成交量(元) */
+  a: number
+  /** 周期值，格式为 HH:mm */
+  t: string
 }

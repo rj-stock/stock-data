@@ -1,11 +1,8 @@
-import { KPeriod, StockData } from "../../../types.ts"
+import { KPeriod, StockKData } from "../../../types.ts"
 import crawl from "./crawl_all.ts"
-import { period2LineUrlPath } from "./internal.ts"
 
-async function crawl2File(code: string, period = KPeriod.Day, debug = false): Promise<StockData> {
-  const sp = period2LineUrlPath(period)
+async function crawl2File(code: string, period = KPeriod.Day, debug = false): Promise<StockKData> {
   const stockK = await crawl(code, period, debug)
-  // console.log(`${code} all ${period} k count=${stockK.data.length}`)
   Deno.writeTextFile(`temp/10jqka-v6-line-all-${code}-${period}.json`, JSON.stringify(stockK, null, 2))
   return stockK
 }
