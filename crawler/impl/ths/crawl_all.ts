@@ -33,7 +33,7 @@
 import { formatDateTime, parseJsonp } from "../../../deps.ts"
 import { KCrawler } from "../../crawler.ts"
 import { KData, KPeriod, StockKData } from "../../../types.ts"
-import { period2LineUrlPath, thsRequestInit, ts2IsoStandard } from "./internal.ts"
+import { code2LineUrlPath, period2LineUrlPath, thsRequestInit, ts2IsoStandard } from "./internal.ts"
 
 type ResponsJson = {
   // 个股名称，如浦发银行 "\u6d66\u53d1\u94f6\u884c"
@@ -48,7 +48,7 @@ type ResponsJson = {
   // 格式为交易日的 MMdd 格式用逗号连接的字符串，年份需要从 sortYear 中取
   // 按逗号分割后其长度值应与 total 的值相等
   dates: string
-  // 成交量(股数)的逗号字符串连接，如 "15007900,...,19475694"
+  // 成交量(股票为股数、期货为手数)的逗号字符串连接，如 "15007900,...,19475694"
   // 按逗号分割后其长度值应与 total 的值相等
   volumn: string
   // price 字段内价格的值对应的乘数，为 100，如实际价格为 7.25 在 price 中显示为 725
@@ -60,14 +60,15 @@ type ResponsJson = {
 }
 
 /**
- * 同花顺股票数据器爬取实现。
+ * 同花顺股票、期货数据器爬取实现。
  *
  * 1. 打开页面 http://stockpage.10jqka.com.cn/300025/ 然后点“日K”并切换到不复权，发出下面的数据请求
  * 2. https://d.10jqka.com.cn/v6/line/hs_300025/00/all.js
  */
 const crawl: KCrawler = async (code: string, period = KPeriod.Day, debug = false): Promise<StockKData> => {
+  const type = code2LineUrlPath(code)
   const sp = period2LineUrlPath(period)
-  const url = `http://d.10jqka.com.cn/v6/line/hs_${code}/${sp}/all.js?ts=${Date.now()}`
+  const url = `http://d.10jqka.com.cn/v6/line/${type}_${code}/${sp}/all.js?ts=${Date.now()}`
   const response = await fetch(url, thsRequestInit)
   if (!response.ok) throw new Error(`从同花顺获取 "${code}" 数据失败：${response.status} ${response.statusText}`)
 

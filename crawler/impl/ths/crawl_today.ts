@@ -15,7 +15,7 @@
 import { formatDateTime, parseJsonp } from "../../../deps.ts"
 import { LatestKCrawler } from "../../crawler.ts"
 import { KPeriod, LatestKData } from "../../../types.ts"
-import { isMinutePeriod, period2LineUrlPath, thsRequestInit, ts2IsoStandard } from "./internal.ts"
+import { code2LineUrlPath, isMinutePeriod, period2LineUrlPath, thsRequestInit, ts2IsoStandard } from "./internal.ts"
 
 export type LatestKResponsJson = {
   // 个股名称，如浦发银行 "\u6d66\u53d1\u94f6\u884c"
@@ -36,12 +36,15 @@ export type LatestKResponsJson = {
   "13": number
   // 成交额(元)
   "19": string
+  // 期货的昨日结算价
+  "66": string
 }
 
 /** 同花顺股票数据器爬取实现 */
 const crawl: LatestKCrawler = async (code: string, period = KPeriod.Day, debug = false): Promise<LatestKData> => {
+  const type = code2LineUrlPath(code)
   const sp = period2LineUrlPath(period)
-  const url = `http://d.10jqka.com.cn/v6/line/hs_${code}/${sp}/today.js?ts=${Date.now()}`
+  const url = `http://d.10jqka.com.cn/v6/line/${type}_${code}/${sp}/today.js?ts=${Date.now()}`
   const response = await fetch(url, thsRequestInit)
   if (!response.ok) throw new Error(`从同花顺获取 "${code}" 数据失败：${response.status} ${response.statusText}`)
 
@@ -52,7 +55,7 @@ const crawl: LatestKCrawler = async (code: string, period = KPeriod.Day, debug =
   const txt = await response.text()
   if (debug) Deno.writeTextFile(`temp/10jqka-v6-line-today-${code}-${period}.js`, txt)
 
-  const j = (parseJsonp(txt) as Record<string, unknown>)[`hs_${code}`] as LatestKResponsJson
+  const j = (parseJsonp(txt) as Record<string, unknown>)[`${type}_${code}`] as LatestKResponsJson
   const yyp2 = new Date().getFullYear().toString().substring(0, 2)
   const data: LatestKData = {
     // ts: formatDateTime(new Date(), "yyyy-MM-ddTHH:mm:ss"),
@@ -73,6 +76,8 @@ const crawl: LatestKCrawler = async (code: string, period = KPeriod.Day, debug =
     v: j["13"],
     /** 成交额(元) */
     a: parseFloat(j["19"]),
+    /** 期货的昨日结算价 */
+    p: j["66"] ? parseFloat(j["66"]) : undefined,
   }
 
   return data

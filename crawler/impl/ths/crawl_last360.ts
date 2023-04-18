@@ -4,12 +4,19 @@
 import { parseJsonp } from "../../../deps.ts"
 import { KCrawler } from "../../crawler.ts"
 import { KPeriod, StockKData } from "../../../types.ts"
-import { LastXResponsJson, parseLastXJson2StockData, period2LineUrlPath, thsRequestInit } from "./internal.ts"
+import {
+  code2LineUrlPath,
+  LastXResponsJson,
+  parseLastXJson2StockData,
+  period2LineUrlPath,
+  thsRequestInit,
+} from "./internal.ts"
 
 /** 同花顺股票数据器爬取实现 */
 const crawl: KCrawler = async (code: string, period = KPeriod.Day, debug = false): Promise<StockKData> => {
+  const type = code2LineUrlPath(code)
   const sp = period2LineUrlPath(period)
-  const url = `http://d.10jqka.com.cn/v6/line/hs_${code}/${sp}/last360.js?ts=${Date.now()}`
+  const url = `http://d.10jqka.com.cn/v6/line/${type}_${code}/${sp}/last360.js?ts=${Date.now()}`
   const response = await fetch(url, thsRequestInit)
   if (!response.ok) throw new Error(`从同花顺获取 "${code}" 数据失败：${response.status} ${response.statusText}`)
 
