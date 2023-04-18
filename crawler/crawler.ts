@@ -1,6 +1,12 @@
 // 股票数据器接口定义
 
-import { KType, StockK } from "../types.ts"
+import { KPeriod, LatestKData, StockKData, StockTimeData } from "../types.ts"
 
-/** 爬取指定编码的股票数据 */
-export type Crawler = (code: string, type?: KType) => Promise<StockK>
+/** 爬取股票的 K 线数据集 */
+export type KCrawler = (code: string, period?: KPeriod, debug?: boolean) => Promise<StockKData>
+
+/** 爬取股票最后交易日的分时数据 */
+export type TimeCrawler = (code: string, debug?: boolean) => Promise<StockTimeData>
+
+/** 爬取股票最后一个周期的 K 数据 */
+export type LatestKCrawler = (code: string, period?: KPeriod, debug?: boolean) => Promise<LatestKData>

@@ -1,34 +1,46 @@
 /**
+ * 从同花顺数据中心打开页面 http://stockpage.10jqka.com.cn/300025/ 收集的数据请求地址。
+ *
  * 这个 url 爬取的数据缺点是没有成交金额。
  *
  * 1. 打开页面 http://stockpage.10jqka.com.cn/300025/ ，然后点“日K”并切换到“不复权”，发出下面的数据请求：
- * 2. https://d.10jqka.com.cn/v6/line/hs_300025/${dd}/all.js|today.js
+ * 2. https://d.10jqka.com.cn/v6/line/hs_300025/${sp}/all.js|today.js
  *
  * 其中:
- * | dd | type | Remark
- * |----|------|--------
- * | 20 | 月 K | 不复权
- * | 10 | 周 K | 不复权
- * | 00 | 日 K | 不复权
- * | 21 | 月 K | 前复权
- * | 11 | 周 K | 前复权
+ * | dd | type  | Remark
+ * |----|-------|--------
+ * | 00 | 日 K  | 不复权
+ * | 10 | 周 K  | 不复权
+ * | 20 | 月 K  | 不复权
+ * | 90 | 季 K  | 不复权
+ * | 80 | 年 K  | 不复权
+ * | 60 | 1分钟  | 不复权
+ * | 30 | 5分钟  | 不复权
+ * |    | 15分钟 | 不复权
+ * | 40 | 30分钟 | 不复权
+ * | 50 | 60分钟 | 不复权
+ * |
  * | 01 | 日 K | 前复权
- * | 22 | 月 K | 后复权
- * | 12 | 周 K | 后复权
+ * | 11 | 周 K | 前复权
+ * | 21 | 月 K | 前复权
+ * |
  * | 02 | 日 K | 后复权
+ * | 12 | 周 K | 后复权
+ * | 22 | 月 K | 后复权
+ *
+ * @module
  */
-import { parseJsonp } from "../../deps.ts"
-import { Crawler } from "../crawler.ts"
-import { KType, PeriodK, StockK } from "../../types.ts"
-import { userAgent } from "../../browser.ts"
-const debug = true
+import { formatDateTime, parseJsonp } from "../../../deps.ts"
+import { KCrawler } from "../../crawler.ts"
+import { KData, KPeriod, StockKData } from "../../../types.ts"
+import { code2LineUrlPath, period2LineUrlPath, thsRequestInit, ts2IsoStandard } from "./internal.ts"
 
 type ResponsJson = {
   // 个股名称，如浦发银行 "\u6d66\u53d1\u94f6\u884c"
   name: string
-  // 上市日期 yyyyMMdd
+  // 此周期首个数据的起始日期或时间：年月季周日周期的格式为 yyyyMMdd、分钟周期的格式为 yyyyMMddHHmm
   start: string
-  // 上市以来的总K线个数
+  // 总K线个数
   total: string
   // 格式为 [[年份的 yyyy 数字,年份的K线个数],...]，年份值由小到大
   // 如 60000 的 [[1999,  36], [2000, 237],..., [2022, 242], [2023, 68]]
@@ -36,7 +48,7 @@ type ResponsJson = {
   // 格式为交易日的 MMdd 格式用逗号连接的字符串，年份需要从 sortYear 中取
   // 按逗号分割后其长度值应与 total 的值相等
   dates: string
-  // 成交量(股数)的逗号字符串连接，如 "15007900,...,19475694"
+  // 成交量(股票为股数、期货为手数)的逗号字符串连接，如 "15007900,...,19475694"
   // 按逗号分割后其长度值应与 total 的值相等
   volumn: string
   // price 字段内价格的值对应的乘数，为 100，如实际价格为 7.25 在 price 中显示为 725
@@ -48,24 +60,20 @@ type ResponsJson = {
 }
 
 /**
- * 同花顺股票数据器爬取实现。
+ * 同花顺股票、期货数据器爬取实现。
  *
  * 1. 打开页面 http://stockpage.10jqka.com.cn/300025/ 然后点“日K”并切换到不复权，发出下面的数据请求
  * 2. https://d.10jqka.com.cn/v6/line/hs_300025/00/all.js
  */
-const crawl: Crawler = async (code: string, _type = KType.Day): Promise<StockK> => {
-  const url = `http://d.10jqka.com.cn/v6/line/hs_${code}/00/all.js?ts=${Date.now()}`
-  const response = await fetch(url, {
-    headers: {
-      "User-Agent": userAgent,
-      "Host": "d.10jqka.com.cn",
-      "Referer": "http://www.iwencai.com/",
-    },
-  })
+const crawl: KCrawler = async (code: string, period = KPeriod.Day, debug = false): Promise<StockKData> => {
+  const type = code2LineUrlPath(code)
+  const sp = period2LineUrlPath(period)
+  const url = `http://d.10jqka.com.cn/v6/line/${type}_${code}/${sp}/all.js?ts=${Date.now()}`
+  const response = await fetch(url, thsRequestInit)
   if (!response.ok) throw new Error(`从同花顺获取 "${code}" 数据失败：${response.status} ${response.statusText}`)
 
   /**
-   * 响应体数据结构例子: quotebridge_v6_line_hs_600000_01_all({
+   * 响应体数据结构例子: quotebridge_v6_line_hs_600000_00_all({
    *   "total":"5559","start":"19991110",
    *   "name":"\u6d66\u53d1\u94f6\u884c",
    *   "sortYear":[[1999,36],...,[2023,68]],
@@ -78,7 +86,7 @@ const crawl: Crawler = async (code: string, _type = KType.Day): Promise<StockK> 
    * })
    */
   const txt = await response.text()
-  if (debug) Deno.writeTextFile(`temp/10jqka-v6-line-hs_${code}-00-all.js`, txt)
+  if (debug) Deno.writeTextFile(`temp/10jqka-v6-line-all-${code}-${period}.js`, txt)
 
   const j = parseJsonp(txt) as ResponsJson
   const dates = j.dates.split(",")
@@ -87,17 +95,14 @@ const crawl: Crawler = async (code: string, _type = KType.Day): Promise<StockK> 
   const yearKCounts = j.sortYear
   const total = parseInt(j.total)
   const priceFactor = j.priceFactor
-  console.log(`${code} k total=${j.total}`)
-  // console.log("dates.length=" + dates.length)
-  // console.log("volumns.length=" + volumns.length)
-  // console.log("prices.length=" + prices.length)
+  // console.log(`${code} all ${period} k total=${j.total}`)
   // console.log("priceFactor=" + priceFactor)
   if (dates.length !== total || volumns.length !== total || prices.length !== total * 4) {
     throw new Error("检测到同花顺返回错误的数据结构")
   }
 
   // 解析K线数据
-  const periodKs: PeriodK[] = []
+  const kDatas: KData[] = []
   let yc = 0
   for (const [year, count] of yearKCounts) {
     for (let j = 0; j < count; j++) {
@@ -111,31 +116,33 @@ const crawl: Crawler = async (code: string, _type = KType.Day): Promise<StockK> 
         parseInt(prices[k + 3]),
       ]
 
-      periodKs.push({
-        ts: year + "-" + MMdd.substring(0, 2) + "-" + MMdd.substring(2),
-        low: low10 / priceFactor,
-        open: (low10 + dOpen) / priceFactor,
-        high: (low10 + dHigh) / priceFactor,
-        close: (low10 + dClose) / priceFactor,
+      kDatas.push({
+        t: ts2IsoStandard(`${year}${MMdd}`),
+        l: low10 / priceFactor,
+        o: (low10 + dOpen) / priceFactor,
+        h: (low10 + dHigh) / priceFactor,
+        c: (low10 + dClose) / priceFactor,
         /** 成交量(股) */
-        vol: parseInt(volumns[i]),
+        v: parseInt(volumns[i]),
         /** NO 成交额(元) */
-        amo: 0,
+        a: 0,
       })
     }
     yc += count
   }
 
-  //
-  const stockK: StockK = {
+  // 组合数据返回
+  const stockData: StockKData = {
+    ts: formatDateTime(new Date(), "yyyy-MM-ddTHH:mm:ss"),
+    period,
     code,
     name: j.name,
-    // 上市日
-    startDate: j.start.substring(0, 4) + "-" + j.start.substring(4, 6) + "-" + j.start.substring(6),
-    data: periodKs,
+    start: ts2IsoStandard(j.start),
+    total: parseInt(j.total),
+    dataCount: kDatas.length,
+    data: kDatas,
   }
-
-  return stockK
+  return stockData
 }
 
 export default crawl
