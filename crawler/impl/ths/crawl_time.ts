@@ -15,14 +15,14 @@
 import { formatDateTime, parseJsonp } from "../../../deps.ts"
 import { TimeCrawler } from "../../crawler.ts"
 import { KPeriod, StockTimeData } from "../../../types.ts"
-import { thsRequestInit, ts2IsoStandard } from "./internal.ts"
+import { code2LineUrlPath, thsRequestInit, ts2IsoStandard } from "./internal.ts"
 
 export type TimeResponsJson = {
-  // 个股名称，如浦发银行 "\u6d66\u53d1\u94f6\u884c"
+  // 标的名称，如浦发银行 "\u6d66\u53d1\u94f6\u884c"
   name: string
-  // 昨日收盘价
+  // 股票昨日收盘价、期货昨日结算价
   pre: number
-  // 分时数据的数据数量，固定为 242 个，即分钟数
+  // 分时数据的数据数量，即分钟数，与交易时间的分钟数对应
   dotsCount: number
   // 分时数据对应的日期
   date: string
@@ -33,7 +33,8 @@ export type TimeResponsJson = {
 
 /** 同花顺股票数据器爬取实现 */
 const crawl: TimeCrawler = async (code: string, debug = false): Promise<StockTimeData> => {
-  const url = `https://d.10jqka.com.cn/v6/time/hs_${code}/last.js?ts=${Date.now()}`
+  const type = code2LineUrlPath(code)
+  const url = `https://d.10jqka.com.cn/v6/time/${type}_${code}/last.js?ts=${Date.now()}`
   const response = await fetch(url, thsRequestInit)
   if (!response.ok) throw new Error(`从同花顺获取 "${code}" 数据失败：${response.status} ${response.statusText}`)
 
@@ -59,7 +60,7 @@ const crawl: TimeCrawler = async (code: string, debug = false): Promise<StockTim
   const txt = await response.text()
   if (debug) Deno.writeTextFile(`temp/10jqka-v6-time-last-${code}.js`, txt)
 
-  const j = (parseJsonp(txt) as Record<string, unknown>)[`hs_${code}`] as TimeResponsJson
+  const j = (parseJsonp(txt) as Record<string, unknown>)[`${type}_${code}`] as TimeResponsJson
   const kk = j.data.split(";")
   const stockData: StockTimeData = {
     ts: formatDateTime(new Date(), "yyyy-MM-ddTHH:mm:ss"),

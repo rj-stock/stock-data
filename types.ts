@@ -34,6 +34,8 @@ export enum KPeriod {
 
 /** K 线数据 */
 export type KData = {
+  /** 股票的昨日收盘价、期货的昨日结算价 */
+  p?: number
   /** 开盘价 */
   o: number
   /** 收盘价 */

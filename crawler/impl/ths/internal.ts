@@ -11,6 +11,12 @@ export const thsRequestInit: RequestInit = {
   },
 }
 
+/** 转换代码为获取K线数据url的一个子路径。应仅在 tsh 目录内使用。 */
+export function code2LineUrlPath(code: string): string {
+  // 以数字开头的是股票，其余视作期货
+  return isNaN(Number(code.charAt(0))) ? "qh" : "hs"
+}
+
 /** 转换周期类型为获取K线数据url的一个子路径。应仅在 tsh 目录内使用。 */
 export const period2LineUrlPath = (period: KPeriod): string => {
   switch (period) {
@@ -109,6 +115,8 @@ export function parseLastXJson2StockData(code: string, j: LastXResponsJson, peri
         v: parseInt(ks[5]),
         /** 成交额(元) */
         a: parseFloat(ks[6]),
+        /** 期货的昨日结算价 */
+        p: ks[8] ? parseFloat(ks[8]) : undefined,
       }
       return kd
     }),
