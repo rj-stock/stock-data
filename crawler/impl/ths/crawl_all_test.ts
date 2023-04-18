@@ -3,7 +3,7 @@ import crawl from "./crawl_all.ts"
 
 async function crawl2File(code: string, period = KPeriod.Day, debug = false): Promise<StockKData> {
   const stockK = await crawl(code, period, debug)
-  Deno.writeTextFile(`temp/10jqka-v6-line-all-${code}-${period}.json`, JSON.stringify(stockK, null, 2))
+  await Deno.writeTextFile(`temp/10jqka-v6-line-all-${code}-${period}.json`, JSON.stringify(stockK, null, 2))
   return stockK
 }
 
