@@ -11,17 +11,20 @@ async function crawl2File(code: string, period: KPeriod, debug = false): Promise
 }
 
 async function repeat(code: string, seconds: number, period: KPeriod): Promise<void> {
-  try {
-    return await new Promise((resolve) => {
-      setInterval(async () => {
+  return await new Promise((resolve) => {
+    const id = setInterval(async () => {
+      try {
         await crawl2File(code, period, false)
         const c = new Date()
-        if (c.getHours() >= 15 && c.getMinutes() >= 31) resolve(0)
-      }, seconds * 1000)
-    })
-  } catch (error) {
-    console.error(error.message)
-  }
+        if (c.getHours() >= 15 && c.getMinutes() >= 31) {
+          clearInterval(id)
+          resolve()
+        }
+      } catch (error) {
+        console.error(error.message)
+      }
+    }, seconds * 1000)
+  })
 }
 
 // log arguments help
