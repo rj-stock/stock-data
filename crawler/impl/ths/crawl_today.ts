@@ -64,7 +64,7 @@ const crawl: LatestKCrawler = async (code: string, period = KPeriod.Day, debug =
     period,
     code,
     name: j.name,
-    // (yy+1)MMddHHmm 转 yyyy-MM-ddTHH:ss
+    // (yy+10)MMddHHmm 转 yyyy-MM-ddTHH:ss
     t: isMinutePeriod(period)
       ? ts2IsoStandard(yyp2 + (parseInt(j["1"].substring(0, 2)) - 10) + j["1"].substring(2))
       : ts2IsoStandard(j["1"]),
