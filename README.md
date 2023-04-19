@@ -5,7 +5,7 @@
 ### 1. 循环读取 1 分钟周期最后一根 K 线的数据
 
 ```shell
-deno run -A .\crawler\impl\ths\crawl_today_repeat.ts -c ag2306 -p minute1
+deno run -A https://deno.land/x/stock_data/crawler/impl/ths/crawl_today_repeat.ts -c ag2306 -p minute1
 
 // output
 ag2306 沪银2306

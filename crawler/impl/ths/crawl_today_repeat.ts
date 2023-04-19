@@ -1,7 +1,10 @@
-import { formatDateTime, green, parseArgs, red, TerminalProgress } from "../../../deps.ts"
+import { formatDateTime, parseArgs, pathExistsSync, red, TerminalProgress } from "../../../deps.ts"
 import { KPeriod, LatestKData } from "../../../types.ts"
 import { default as crawlTodayLatestK } from "./crawl_today.ts"
 import { default as crawlLast360K } from "./crawl_last360.ts"
+
+// 创建临时文件夹
+if (!pathExistsSync("temp")) Deno.mkdir("temp")
 
 // log arguments help
 console.info(`参数帮助：
