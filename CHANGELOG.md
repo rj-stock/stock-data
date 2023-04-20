@@ -1,5 +1,10 @@
 # Today Stock Changelog
 
+## 0.6.0 2023-04-20
+
+- 修正 crawl_today_repeat 的 -c 参数自动解析为数字的错误
+  > 会将 `-c 000123` 解析为数字 `123` 导致代码被缩短的错误
+
 ## 0.5.0 2023-04-20
 
 - 修正 crawl_today_repeat 的参数帮助信息
