@@ -10,7 +10,7 @@ if (!pathExistsSync("temp")) Deno.mkdir("temp")
 console.info(`参数帮助：
   -c 指定代码，默认 600000
   -p 指定周期(day、week、month、year、minute1、minute5、minute30、minute60)，默认 day
-  -t 指定间隔秒数，默认 1 秒
+  -s 指定间隔秒数，默认 1 秒
   -m 是否每次新数据输出到新行
   如 "deno run -A ./crawler/impl/ths/crawl_today_repeat.ts -c FG9999 -p minute1 -s 5 -m"`)
 
