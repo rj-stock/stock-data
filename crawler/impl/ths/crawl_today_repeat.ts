@@ -15,10 +15,10 @@ console.log(gray(`参数帮助：
   如 "deno run -A ./crawler/impl/ths/crawl_today_repeat.ts -c FG9999 -p minute1 -s 5 -m"`))
 
 // parse cli arguments
-const args = parseArgs(Deno.args)
-const code = Object.hasOwn(args, "c") ? args["c"] : "600000"
+const args = parseArgs(Deno.args, { string: ["c", "p"] })
+const code: string = Object.hasOwn(args, "c") ? args["c"] as string : "600000"
 const period = Object.hasOwn(args, "p") ? args["p"] as KPeriod : KPeriod.Day
-const seconds = Object.hasOwn(args, "s") ? parseInt(args["s"]) : 1
+const seconds = Object.hasOwn(args, "s") ? args["s"] as number : 1
 const multiline = Object.hasOwn(args, "m")
 
 // 显示昨天数据
