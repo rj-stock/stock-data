@@ -1,5 +1,9 @@
 # Today Stock Changelog
 
+## 0.5.0 2023-04-20
+
+- 修正 crawl_today_repeat 的参数帮助信息
+
 ## 0.4.0 2023-04-20
 
 - crawl_today_repeat 运行时自动创建临时文件夹 temp
