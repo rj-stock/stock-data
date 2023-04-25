@@ -1,6 +1,9 @@
 /**
  * 通过小熊同学 api 接口 https://api.doctorxiong.club/v1/stock/all 获取全部股票。
  *
+ * 注：小熊的这个 API 接口返回的标的代码包含市场类别前缀 sh 和 sz，同时也包含了 B 股的信息。
+ * 这里的实现会自动去掉前缀和 B 股，仅保留沪深主板、科创板、创业板。
+ *
  * 官方文档：https://www.doctorxiong.club/api/#api-Stock-getAllStock
  *
  * @module
@@ -30,8 +33,12 @@ const crawl: ListCrawler = async (debug = false): Promise<StockBase[]> => {
   if (debug) Deno.writeTextFile(`temp/doctorxiong-list.json`, JSON.stringify(j, null, 2))
   if (j.code !== 200) throw new Error(j.message)
 
-  // 解析数据: 代码前缀带有市场类别符号 sh 和 sz，需去除
-  return j.data.map(([code, name]) => ({ code: code.substring(2), name } as StockBase))
+  // 解析数据
+  return j.data
+    // 仅保留沪深主板、科创板、创业板
+    .filter(([code, _name]) => code.startsWith("sh6") || code.startsWith("sz0") || code.startsWith("sz3"))
+    // 去掉代码的市场前缀 sh 和 sz
+    .map(([code, name]) => ({ code: code.substring(2), name } as StockBase))
 }
 
 export default crawl
