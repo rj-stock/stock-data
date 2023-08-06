@@ -32,6 +32,11 @@ export enum KPeriod {
   Minute60 = "minute60",
 }
 
+/** 判断是否是分钟周期 */
+export function isMinuteKPeriod(period: KPeriod): boolean {
+  return period.toString().startsWith("minute")
+}
+
 /** K 线数据 */
 export type KData = {
   /** 股票的昨日收盘价、期货的昨日结算价 */
