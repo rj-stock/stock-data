@@ -9,7 +9,7 @@ Deno.test("all stock list", async () => {
   const list: StockBase[] = await crawl(true)
   console.log("start=" + start)
   console.log("end=" + formatDateTime(new Date(), "yyyy-MM-dd HH:mm:ss"))
-  // 2023-08-04 18:00:01 total=2228(主板1678+科创板550)
+  // 2023-08-07 total=2805(主板1505+创业板1300)
   console.log(
     `total=${list.length}` +
       `, 主板=${list.filter(({ code }: StockBase) => code.startsWith("0")).length}` +
