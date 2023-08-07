@@ -1,5 +1,12 @@
 // deno/std
-export { assertRejects, assertStrictEquals, assertThrows } from "https://deno.land/std@0.180.0/testing/asserts.ts"
+export {
+  assert,
+  assertEquals,
+  assertObjectMatch,
+  assertRejects,
+  assertStrictEquals,
+  assertThrows,
+} from "https://deno.land/std@0.180.0/testing/asserts.ts"
 export { dirname, extname, join as joinPath } from "https://deno.land/std@0.180.0/path/mod.ts"
 export { extension } from "https://deno.land/std@0.180.0/media_types/mod.ts"
 export { format as formatDateTime } from "https://deno.land/std@0.180.0/datetime/mod.ts"
