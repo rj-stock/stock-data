@@ -1,5 +1,10 @@
 # Today Stock Changelog
 
+## 0.8.0 2023-08-06
+
+- 增加股票市场标的数量统计例子
+  > deno run --allow-net https://deno.lang/x/stock_data/example/stock_stat.ts
+
 ## 0.7.0 2023-08-07
 
 - 实现从上交所、深交所和北交所网站爬取所有股票列表和 K 线数据
