@@ -3,7 +3,7 @@
 ## 0.8.0 2023-08-06
 
 - 增加股票市场标的数量统计例子
-  > deno run --allow-net https://deno.lang/x/stock_data/example/stock_stat.ts
+  > deno run --allow-net https://deno.land/x/stock_data/example/stock_stat.ts
 
 ## 0.7.0 2023-08-07
 
