@@ -1,5 +1,9 @@
 # Today Stock Changelog
 
+## 0.9.2 2023-08-06
+
+- Remove log url
+
 ## 0.9.1 2023-08-06
 
 - 修正导出 crawlKFromJys 函数的错误
