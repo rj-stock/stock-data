@@ -38,7 +38,7 @@ const crawl: KCrawler = async (
   const random = Math.random()
   let url = `http://www.szse.cn/api/market/ssjjhq/getHistoryData?random=${random}&marketId=1&code=${code}`
   url += `&cycleType=${period2QueryParamValue(period)}`
-  console.log(url)
+  // console.log(url)
   const response = await fetch(url, {
     headers: {
       "Content-Type": "application/json",

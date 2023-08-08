@@ -49,7 +49,7 @@ const crawl: KCrawler = async (
   // 忽略 begin 和 end 参数，上交所默认是返回最近 100 根 K 线
   if (init?.start !== undefined) url += `&begin=${init?.start}`
   if (init?.end !== undefined) url += `&end=${init?.end}`
-  console.log(url)
+  // console.log(url)
 
   const response = await fetch(url, {
     headers: {
