@@ -76,4 +76,4 @@ const crawlKFromJys: KCrawler = (
     return crawlBjK(code, period, init)
   } else throw new Error(`Unsupport jys code ${code}`)
 }
-export default crawlKFromJys
+export { crawlKFromJys }
