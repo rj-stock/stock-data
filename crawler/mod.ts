@@ -1,7 +1,9 @@
-import { crawlList as crawlShList } from "./impl/sh/mod.ts"
-import { crawlList as crawlBjList } from "./impl/sz/mod.ts"
-import { crawlList as crawlSzList } from "./impl/bj/mod.ts"
-import { StockBase } from "../types.ts"
+import { crawlK as crawlShK, crawlList as crawlShList } from "./impl/sh/mod.ts"
+import { crawlK as crawlSzK, crawlList as crawlSzList } from "./impl/sz/mod.ts"
+import { crawlK as crawlBjK, crawlList as crawlBjList } from "./impl/bj/mod.ts"
+import { KPeriod, StockBase, StockKData } from "../types.ts"
+import { KCrawler } from "./crawler.ts"
+import { CrawlInit } from "./crawler.ts"
 
 /**
  * 爬取全市场所有股票列表(仅包含标的代码和名称)。
@@ -59,3 +61,19 @@ export async function crawlAllStock(): Promise<Record<string, string>> {
 
   return map
 }
+
+/** 封装从交易所获取 K 线的方法 */
+const crawlKFromJys: KCrawler = (
+  code: string,
+  period = KPeriod.Day,
+  init?: CrawlInit,
+): Promise<StockKData> => {
+  if (code.startsWith("0") || code.startsWith("3")) {
+    return crawlSzK(code, period, init)
+  } else if (code.startsWith("6")) {
+    return crawlShK(code, period, init)
+  } else if (code.startsWith("4") || code.startsWith("8")) {
+    return crawlBjK(code, period, init)
+  } else throw new Error(`Unsupport jys code ${code}`)
+}
+export default crawlKFromJys
