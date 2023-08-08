@@ -20,7 +20,8 @@ export async function crawlAllStock(): Promise<Record<string, string>> {
   let sub: StockBase[] = []
   try {
     sub = await crawlShList()
-  } catch (_e) {
+  } catch (e) {
+    console.error("上交所: " + e.message)
     failedSh = true
   }
   if (sub.length) for (const { code, name } of sub) map[code] = name
@@ -29,7 +30,8 @@ export async function crawlAllStock(): Promise<Record<string, string>> {
   sub = []
   try {
     sub = await crawlBjList()
-  } catch (_e) {
+  } catch (e) {
+    console.error("北交所: " + e.message)
     failedBj = true
   }
   if (sub.length) for (const { code, name } of sub) map[code] = name
@@ -38,7 +40,8 @@ export async function crawlAllStock(): Promise<Record<string, string>> {
   sub = []
   try {
     sub = await crawlSzList()
-  } catch (_e) {
+  } catch (e) {
+    console.error("深交所: " + e.message)
     failedSz = true
   }
   if (sub.length) for (const { code, name } of sub) map[code] = name
@@ -48,8 +51,9 @@ export async function crawlAllStock(): Promise<Record<string, string>> {
   if (failedSh || failedSz || failedBj) {
     try {
       sub = await crawlSzList()
-      // deno-lint-ignore no-empty
-    } catch (_e) {}
+    } catch (e) {
+      console.error("小熊: " + e.message)
+    }
   }
   if (sub.length) for (const { code, name } of sub) map[code] = name
 
